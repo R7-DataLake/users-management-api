@@ -16,7 +16,7 @@ export default async (fastify: FastifyInstance) => {
   const loginModel = new LoginModel();
   const postgrest = fastify.postgrest;
 
-  fastify.post('/login', {
+  fastify.post('/admin/login', {
     config: {
       rateLimit: {
         max: 10,
@@ -30,7 +30,66 @@ export default async (fastify: FastifyInstance) => {
     const password = body.password;
 
     try {
-      const { data, error } = await loginModel.login(postgrest, username);
+      const { data, error } = await loginModel.adminLogin(postgrest, username);
+
+      if (error) {
+        request.log.error(error);
+        reply
+          .status(StatusCodes.BAD_GATEWAY)
+          .send({
+            code: error.code,
+            details: error.details,
+            message: error.message
+          })
+      } else {
+
+        const hash: any = data.password;
+
+        const isOk: any = bcrypt.compareSync(password, hash);
+
+        if (isOk) {
+          const payload: any = { sub: data.id, ingress_zone: data.ingress_zone }
+          const token = fastify.jwt.sign(payload);
+          reply
+            .status(StatusCodes.OK)
+            .send({ access_token: token });
+        } else {
+          reply
+            .status(StatusCodes.UNAUTHORIZED)
+            .send({
+              code: StatusCodes.UNAUTHORIZED,
+              error: getReasonPhrase(StatusCodes.UNAUTHORIZED)
+            });
+        }
+
+      }
+
+    } catch (error: any) {
+      request.log.error(error);
+      reply
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send({
+          code: StatusCodes.INTERNAL_SERVER_ERROR,
+          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+        });
+    }
+  })
+
+  fastify.post('/users/login', {
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: '1 minute'
+      }
+    },
+    schema: loginSchema,
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const body: any = request.body;
+    const username = body.username;
+    const password = body.password;
+
+    try {
+      const { data, error } = await loginModel.userLogin(postgrest, username);
 
       if (error) {
         request.log.error(error);

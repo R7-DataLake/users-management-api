@@ -33,13 +33,14 @@ app.register(import('@fastify/rate-limit'), {
 
 // PostgREST
 app.register(require('./plugins/postgrest'), {
-  url: process.env.PGRST_URL,
-  key: process.env.PGRST_KEY
+  url: process.env.USM_PGRST_URL,
+  key: process.env.USM_PGRST_KEY,
+  schema: process.env.USM_PGRS_SCHEMA
 })
 
 // JWT
 app.register(require('./plugins/jwt'), {
-  secret: process.env.PGRST_SECRET_KEY || '@1234567890@',
+  secret: process.env.USM_SECRET_KEY || '@1234567890@',
   sign: {
     iss: 'r7.moph.go.th',
     expiresIn: '10m'
