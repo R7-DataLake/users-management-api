@@ -16,7 +16,7 @@ export default async (fastify: FastifyInstance) => {
   const loginModel = new LoginModel();
   const postgrest = fastify.postgrest;
 
-  fastify.post('/admin/login', {
+  fastify.post('/login/admin', {
     config: {
       rateLimit: {
         max: 10,
@@ -75,7 +75,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.post('/users/login', {
+  fastify.post('/login/user', {
     config: {
       rateLimit: {
         max: 10,
