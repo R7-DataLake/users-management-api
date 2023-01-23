@@ -2,6 +2,7 @@ import fastify from 'fastify'
 import path, { join } from 'path';
 const autoload = require('@fastify/autoload')
 const requestId = require('fastify-request-id')
+const helmet = require('@fastify/helmet')
 
 require('dotenv').config({ path: join(__dirname, '../config.conf') })
 
@@ -25,6 +26,10 @@ const app = fastify({
 app.register(require('@fastify/formbody'))
 app.register(require('@fastify/cors'))
 app.register(requestId());
+app.register(
+  helmet,
+  { contentSecurityPolicy: false }
+)
 // Rate limit
 app.register(import('@fastify/rate-limit'), {
   global: false,
