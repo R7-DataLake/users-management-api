@@ -7,7 +7,8 @@ import {
 const bcrypt = require('bcrypt');
 
 import { UserModel } from '../models/users'
-import loginSchema from '../schema/login';
+import createUserSchema from '../schema/user/create_user';
+import { ICreateUser } from "../types/user";
 
 export default async (fastify: FastifyInstance) => {
 
@@ -17,11 +18,9 @@ export default async (fastify: FastifyInstance) => {
   fastify.get('/users', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
+
     const query: any = request.query;
-
     const province_code = query.province_code;
-
-    console.log(request.query);
 
     try {
       const { data, error } = await userModel.list(postgrest, province_code);
@@ -39,6 +38,51 @@ export default async (fastify: FastifyInstance) => {
         reply
           .status(StatusCodes.OK)
           .send(data);
+      }
+
+    } catch (error: any) {
+      request.log.error(error);
+      reply
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send({
+          code: StatusCodes.INTERNAL_SERVER_ERROR,
+          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+        });
+    }
+  })
+
+  fastify.post('/users', {
+    onRequest: [fastify.authenticate],
+    schema: createUserSchema,
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+
+    const body: any = request.body;
+    const { username, password, first_name, last_name, hospcode, ingress_zone, province_code, enabled } = body;
+
+    try {
+      const hash = bcrypt.hashSync(password, 10);
+      let user: ICreateUser = {
+        username: username,
+        password: hash,
+        first_name,
+        last_name,
+        hospcode,
+        ingress_zone,
+        enabled: enabled === 'Y' ? true : false,
+        province_code
+      };
+
+      const { data, error } = await userModel.save(postgrest, user);
+
+      if (error) {
+        request.log.error(error);
+        reply
+          .status(StatusCodes.BAD_GATEWAY)
+          .send(error)
+      } else {
+        reply
+          .status(StatusCodes.CREATED)
+          .send(getReasonPhrase(StatusCodes.CREATED));
       }
 
     } catch (error: any) {

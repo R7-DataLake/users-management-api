@@ -16,4 +16,9 @@ export class UserModel {
     return await query;
   }
 
+  async save(postgrest: any, user: object) {
+    return await postgrest.from('users')
+      .insert(user)
+  }
+
 }
