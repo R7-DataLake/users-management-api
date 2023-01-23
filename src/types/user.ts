@@ -7,6 +7,7 @@ export interface ICreateUser {
   ingress_zone: string;
   enabled: boolean;
   province_code: string;
+  email: string;
 }
 export interface IUpdateUser {
   first_name: string;
@@ -15,4 +16,5 @@ export interface IUpdateUser {
   ingress_zone: string;
   enabled: boolean;
   province_code: string;
+  email: string;
 }
