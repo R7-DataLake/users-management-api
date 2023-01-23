@@ -14,7 +14,7 @@ export class UserModel {
       query.eq('province_code', province_code)
     }
 
-    return await query;
+    return await query.limit(100);
   }
 
   async save(postgrest: any, user: ICreateUser) {
