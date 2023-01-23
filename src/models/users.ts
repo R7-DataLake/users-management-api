@@ -7,7 +7,7 @@ export class UserModel {
   async list(postgrest: any, province_code: any) {
     let query = postgrest
       .from('users')
-      .select('id,first_name,last_name,hospcode,username,ingress_zone,enabled,hospitals(hospname)')
+      .select('id,first_name,last_name,hospcode,username,ingress_zone,enabled,is_deleted,hospitals(hospname)')
       .order('first_name', { ascending: true })
 
     if (province_code) {
@@ -31,6 +31,12 @@ export class UserModel {
   async update(postgrest: any, id: any, user: IUpdateUser) {
     return await postgrest.from('users')
       .update(user)
+      .eq('id', id)
+  }
+
+  async delete(postgrest: any, id: any) {
+    return await postgrest.from('users')
+      .update({ 'is_deleted': true })
       .eq('id', id)
   }
 

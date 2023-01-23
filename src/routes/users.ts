@@ -5,11 +5,11 @@ import {
 } from 'http-status-codes';
 
 const bcrypt = require('bcrypt');
-import { parse as uuidParse } from 'uuid';
 
 import { UserModel } from '../models/users'
-import createUserSchema from '../schema/user/create_user';
-import updateUserSchema from '../schema/user/update_user';
+import removeSchema from '../schema/user/remove';
+import createUserSchema from '../schema/user/create';
+import updateUserSchema from '../schema/user/update';
 import changePasswordSchema from '../schema/user/change_password';
 import { ICreateUser, IUpdateUser } from "../types/user";
 
@@ -120,6 +120,39 @@ export default async (fastify: FastifyInstance) => {
       };
 
       const { data, error } = await userModel.update(postgrest, id, user);
+
+      if (error) {
+        request.log.error(error);
+        reply
+          .status(StatusCodes.BAD_GATEWAY)
+          .send(error)
+      } else {
+        reply
+          .status(StatusCodes.OK)
+          .send(getReasonPhrase(StatusCodes.OK));
+      }
+
+    } catch (error: any) {
+      request.log.error(error);
+      reply
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send({
+          code: StatusCodes.INTERNAL_SERVER_ERROR,
+          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+        });
+    }
+  })
+
+  fastify.delete('/users/:id/mark-delete', {
+    onRequest: [fastify.authenticate],
+    schema: removeSchema,
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+
+    const params: any = request.params;
+    const id = params.id;
+
+    try {
+      const { data, error } = await userModel.delete(postgrest, id);
 
       if (error) {
         request.log.error(error);
