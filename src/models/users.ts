@@ -1,3 +1,4 @@
+import { ICreateUser, IUpdateUser } from "../types/user";
 
 export class UserModel {
 
@@ -16,7 +17,7 @@ export class UserModel {
     return await query;
   }
 
-  async save(postgrest: any, user: object) {
+  async save(postgrest: any, user: ICreateUser) {
     return await postgrest.from('users')
       .insert(user)
   }
@@ -24,6 +25,12 @@ export class UserModel {
   async changePassword(postgrest: any, id: any, password: any) {
     return await postgrest.from('users')
       .update({ password })
+      .eq('id', id)
+  }
+
+  async update(postgrest: any, id: any, user: IUpdateUser) {
+    return await postgrest.from('users')
+      .update(user)
       .eq('id', id)
   }
 

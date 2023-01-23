@@ -5,11 +5,13 @@ import {
 } from 'http-status-codes';
 
 const bcrypt = require('bcrypt');
+import { parse as uuidParse } from 'uuid';
 
 import { UserModel } from '../models/users'
 import createUserSchema from '../schema/user/create_user';
+import updateUserSchema from '../schema/user/update_user';
 import changePasswordSchema from '../schema/user/change_password';
-import { ICreateUser } from "../types/user";
+import { ICreateUser, IUpdateUser } from "../types/user";
 
 export default async (fastify: FastifyInstance) => {
 
@@ -84,6 +86,50 @@ export default async (fastify: FastifyInstance) => {
         reply
           .status(StatusCodes.CREATED)
           .send(getReasonPhrase(StatusCodes.CREATED));
+      }
+
+    } catch (error: any) {
+      request.log.error(error);
+      reply
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send({
+          code: StatusCodes.INTERNAL_SERVER_ERROR,
+          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+        });
+    }
+  })
+
+  fastify.put('/users/:id/edit', {
+    onRequest: [fastify.authenticate],
+    schema: updateUserSchema,
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+
+    const body: any = request.body;
+    const params: any = request.params;
+    const id = params.id;
+    const { first_name, last_name, hospcode, ingress_zone, province_code, enabled } = body;
+
+    try {
+      let user: IUpdateUser = {
+        first_name,
+        last_name,
+        hospcode,
+        ingress_zone,
+        enabled: enabled === 'Y' ? true : false,
+        province_code
+      };
+
+      const { data, error } = await userModel.update(postgrest, id, user);
+
+      if (error) {
+        request.log.error(error);
+        reply
+          .status(StatusCodes.BAD_GATEWAY)
+          .send(error)
+      } else {
+        reply
+          .status(StatusCodes.OK)
+          .send(getReasonPhrase(StatusCodes.OK));
       }
 
     } catch (error: any) {

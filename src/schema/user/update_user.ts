@@ -8,6 +8,10 @@ const updateUserSchema = S.object()
   .prop('enabled', S.string().enum(['Y', 'N']).default('N'))
   .prop('ingress_zone', S.string().enum(['KHONKAEN', 'MAHASARAKHAM', 'ROIET', 'KALASIN']).required())
 
+const updateUserParamSchema = S.object()
+  .prop('id', S.string().format('uuid').required())
+
 export default {
-  body: updateUserSchema
+  body: updateUserSchema,
+  params: updateUserParamSchema
 }
