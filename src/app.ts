@@ -1,6 +1,7 @@
 import fastify from 'fastify'
 import path, { join } from 'path';
 const autoload = require('@fastify/autoload')
+const requestId = require('fastify-request-id')
 
 require('dotenv').config({ path: join(__dirname, '../config.conf') })
 
@@ -23,7 +24,7 @@ const app = fastify({
 // Plugins
 app.register(require('@fastify/formbody'))
 app.register(require('@fastify/cors'))
-
+app.register(requestId());
 // Rate limit
 app.register(import('@fastify/rate-limit'), {
   global: false,

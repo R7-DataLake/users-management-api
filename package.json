@@ -20,6 +20,7 @@
     "dotenv": "^16.0.3",
     "fastify": "^4.11.0",
     "fastify-plugin": "^4.5.0",
+    "fastify-request-id": "^1.0.1",
     "fluent-json-schema": "^4.0.0",
     "http-status-codes": "^2.2.0",
     "lodash": "^4.17.21",
