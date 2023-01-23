@@ -6,6 +6,7 @@ declare module 'fastify' {
     jwt: jsonwebtoken
     authenticate: any
     postgrest: any
+    reqId: any
   }
 
   interface FastifyRequest {
