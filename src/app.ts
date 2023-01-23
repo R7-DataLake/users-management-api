@@ -1,6 +1,8 @@
 import fastify from 'fastify'
 import path, { join } from 'path';
 const autoload = require('@fastify/autoload')
+const requestId = require('fastify-request-id')
+const helmet = require('@fastify/helmet')
 
 require('dotenv').config({ path: join(__dirname, '../config.conf') })
 
@@ -23,13 +25,25 @@ const app = fastify({
 // Plugins
 app.register(require('@fastify/formbody'))
 app.register(require('@fastify/cors'))
-
+app.register(requestId());
+app.register(
+  helmet,
+  { contentSecurityPolicy: false }
+)
 // Rate limit
 app.register(import('@fastify/rate-limit'), {
   global: false,
   max: 100,
   timeWindow: '1 minute'
 })
+
+app.addHook('onSend', (request: any, reply: any, playload: any, next: any) => {
+  reply.headers({
+    'X-Powered-By': 'R7 Health Platform System',
+    'X-Processed-By': process.env.USM_R7_SERVICE_HOSTNAME || 'dummy-server',
+  });
+  next();
+});
 
 // PostgREST
 app.register(require('./plugins/postgrest'), {

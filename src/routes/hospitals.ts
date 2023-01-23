@@ -4,21 +4,19 @@ import {
   getReasonPhrase,
 } from 'http-status-codes';
 
-const bcrypt = require('bcrypt');
+import { HospitalModel } from '../models/hospital';
 
-import { UserModel } from '../models/user'
 import removeSchema from '../schema/user/remove';
-import createUserSchema from '../schema/user/create';
-import updateUserSchema from '../schema/user/update';
-import changePasswordSchema from '../schema/user/change_password';
-import { ICreateUser, IUpdateUser } from "../types/user";
+import createSchema from '../schema/hospital/create';
+import updateSchema from '../schema/hospital/update';
+import { ICreateHospital, IUpdateHospital } from "../types/hospital";
 
 export default async (fastify: FastifyInstance) => {
 
-  const userModel = new UserModel();
+  const hospitalModel = new HospitalModel();
   const postgrest = fastify.postgrest;
 
-  fastify.get('/users', {
+  fastify.get('/hospitals', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
@@ -26,7 +24,7 @@ export default async (fastify: FastifyInstance) => {
     const province_code = query.province_code;
 
     try {
-      const { data, error } = await userModel.list(postgrest, province_code);
+      const { data, error } = await hospitalModel.list(postgrest, province_code);
 
       if (error) {
         request.log.error(error);
@@ -54,28 +52,23 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.post('/users', {
+  fastify.post('/hospitals', {
     onRequest: [fastify.authenticate],
-    schema: createUserSchema,
+    schema: createSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
     const body: any = request.body;
-    const { username, password, first_name, last_name, hospcode, ingress_zone, province_code, enabled } = body;
+    const { hospcode, hospname, province_code, enabled } = body;
 
     try {
-      const hash = bcrypt.hashSync(password, 10);
-      let user: ICreateUser = {
-        username: username,
-        password: hash,
-        first_name,
-        last_name,
+      let hospital: ICreateHospital = {
         hospcode,
-        ingress_zone,
+        hospname,
         enabled: enabled === 'Y' ? true : false,
         province_code
       };
 
-      const { data, error } = await userModel.save(postgrest, user);
+      const { data, error } = await hospitalModel.save(postgrest, hospital);
 
       if (error) {
         request.log.error(error);
@@ -99,27 +92,24 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.put('/users/:id/edit', {
+  fastify.put('/hospitals/:hospcode/edit', {
     onRequest: [fastify.authenticate],
-    schema: updateUserSchema,
+    schema: updateSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
     const body: any = request.body;
     const params: any = request.params;
-    const id = params.id;
-    const { first_name, last_name, hospcode, ingress_zone, province_code, enabled } = body;
+    const hospcode = params.hospcode;
+    const { hospname, province_code, enabled } = body;
 
     try {
-      let user: IUpdateUser = {
-        first_name,
-        last_name,
-        hospcode,
-        ingress_zone,
+      let hospital: IUpdateHospital = {
+        hospname,
         enabled: enabled === 'Y' ? true : false,
         province_code
       };
 
-      const { data, error } = await userModel.update(postgrest, id, user);
+      const { data, error } = await hospitalModel.update(postgrest, hospcode, hospital);
 
       if (error) {
         request.log.error(error);
@@ -143,50 +133,16 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.delete('/users/:id/mark-delete', {
+  fastify.delete('/hospitals/:hospcode/mark-delete', {
     onRequest: [fastify.authenticate],
     schema: removeSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
     const params: any = request.params;
-    const id = params.id;
+    const hospcode = params.hospcode;
 
     try {
-      const { data, error } = await userModel.delete(postgrest, id);
-
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send(error)
-      } else {
-        reply
-          .status(StatusCodes.OK)
-          .send(getReasonPhrase(StatusCodes.OK));
-      }
-
-    } catch (error: any) {
-      request.log.error(error);
-      reply
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .send({
-          code: StatusCodes.INTERNAL_SERVER_ERROR,
-          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
-    }
-  })
-
-  fastify.put('/users/change-password', {
-    onRequest: [fastify.authenticate],
-    schema: changePasswordSchema,
-  }, async (request: FastifyRequest, reply: FastifyReply) => {
-
-    const body: any = request.body;
-    const { id, password } = body;
-
-    try {
-      const hash = bcrypt.hashSync(password, 10);
-      const { data, error } = await userModel.changePassword(postgrest, id, hash);
+      const { data, error } = await hospitalModel.delete(postgrest, hospcode);
 
       if (error) {
         request.log.error(error);

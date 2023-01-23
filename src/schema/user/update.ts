@@ -1,8 +1,6 @@
 import S from 'fluent-json-schema'
 
-const createUserSchema = S.object()
-  .prop('username', S.string().minLength(4).required())
-  .prop('password', S.string().minLength(4).maxLength(16).required())
+const updateSchema = S.object()
   .prop('first_name', S.string().minLength(2).maxLength(100).required())
   .prop('last_name', S.string().minLength(2).maxLength(100).required())
   .prop('hospcode', S.string().maxLength(5).minLength(5).required())
@@ -10,6 +8,10 @@ const createUserSchema = S.object()
   .prop('enabled', S.string().enum(['Y', 'N']).default('N'))
   .prop('ingress_zone', S.string().enum(['KHONKAEN', 'MAHASARAKHAM', 'ROIET', 'KALASIN']).required())
 
+const userParamSchema = S.object()
+  .prop('id', S.string().format('uuid').required())
+
 export default {
-  body: createUserSchema
+  body: updateSchema,
+  params: userParamSchema
 }
