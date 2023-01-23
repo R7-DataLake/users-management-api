@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 
 import { UserModel } from '../models/users'
 import createUserSchema from '../schema/user/create_user';
+import changePasswordSchema from '../schema/user/change_password';
 import { ICreateUser } from "../types/user";
 
 export default async (fastify: FastifyInstance) => {
@@ -83,6 +84,40 @@ export default async (fastify: FastifyInstance) => {
         reply
           .status(StatusCodes.CREATED)
           .send(getReasonPhrase(StatusCodes.CREATED));
+      }
+
+    } catch (error: any) {
+      request.log.error(error);
+      reply
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send({
+          code: StatusCodes.INTERNAL_SERVER_ERROR,
+          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+        });
+    }
+  })
+
+  fastify.put('/users/change-password', {
+    onRequest: [fastify.authenticate],
+    schema: changePasswordSchema,
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+
+    const body: any = request.body;
+    const { id, password } = body;
+
+    try {
+      const hash = bcrypt.hashSync(password, 10);
+      const { data, error } = await userModel.changePassword(postgrest, id, hash);
+
+      if (error) {
+        request.log.error(error);
+        reply
+          .status(StatusCodes.BAD_GATEWAY)
+          .send(error)
+      } else {
+        reply
+          .status(StatusCodes.OK)
+          .send(getReasonPhrase(StatusCodes.OK));
       }
 
     } catch (error: any) {

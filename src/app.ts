@@ -43,7 +43,7 @@ app.register(require('./plugins/jwt'), {
   secret: process.env.USM_SECRET_KEY || '@1234567890@',
   sign: {
     iss: 'r7.moph.go.th',
-    expiresIn: '1h'
+    expiresIn: '1d'
   },
   messages: {
     badRequestErrorMessage: 'Format is Authorization: Bearer [token]',

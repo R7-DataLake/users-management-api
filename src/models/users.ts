@@ -21,4 +21,10 @@ export class UserModel {
       .insert(user)
   }
 
+  async changePassword(postgrest: any, id: any, password: any) {
+    return await postgrest.from('users')
+      .update({ password })
+      .eq('id', id)
+  }
+
 }
