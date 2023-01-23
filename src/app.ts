@@ -31,6 +31,14 @@ app.register(import('@fastify/rate-limit'), {
   timeWindow: '1 minute'
 })
 
+app.addHook('onSend', (request: any, reply: any, playload: any, next: any) => {
+  reply.headers({
+    'X-Powered-By': 'R7 Health Platform System',
+    'X-Processed-By': process.env.USM_R7_SERVICE_HOSTNAME || 'dummy-server',
+  });
+  next();
+});
+
 // PostgREST
 app.register(require('./plugins/postgrest'), {
   url: process.env.USM_PGRST_URL,
