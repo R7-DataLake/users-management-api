@@ -6,6 +6,7 @@ const updateSchema = S.object()
   .prop('hospcode', S.string().maxLength(5).minLength(5).required())
   .prop('province_code', S.string().maxLength(2).minLength(2).required())
   .prop('enabled', S.string().enum(['Y', 'N']).default('N'))
+  .prop('email', S.string().format('email').required())
   .prop('ingress_zone', S.string().enum(['KHONKAEN', 'MAHASARAKHAM', 'ROIET', 'KALASIN']).required())
 
 const userParamSchema = S.object()

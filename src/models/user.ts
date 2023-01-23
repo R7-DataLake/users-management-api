@@ -7,7 +7,7 @@ export class UserModel {
   async list(postgrest: any, province_code: any) {
     let query = postgrest
       .from('users')
-      .select('id,first_name,last_name,hospcode,username,ingress_zone,enabled,is_deleted,hospitals(hospname)')
+      .select('id,first_name,last_name,hospcode,username,ingress_zone,enabled,is_deleted,email,hospitals(hospname)')
       .order('first_name', { ascending: true })
 
     if (province_code) {

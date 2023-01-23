@@ -60,7 +60,7 @@ export default async (fastify: FastifyInstance) => {
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
     const body: any = request.body;
-    const { username, password, first_name, last_name, hospcode, ingress_zone, province_code, enabled } = body;
+    const { username, password, first_name, last_name, hospcode, ingress_zone, province_code, enabled, email } = body;
 
     try {
       const hash = bcrypt.hashSync(password, 10);
@@ -72,7 +72,8 @@ export default async (fastify: FastifyInstance) => {
         hospcode,
         ingress_zone,
         enabled: enabled === 'Y' ? true : false,
-        province_code
+        province_code,
+        email
       };
 
       const { data, error } = await userModel.save(postgrest, user);
@@ -107,7 +108,7 @@ export default async (fastify: FastifyInstance) => {
     const body: any = request.body;
     const params: any = request.params;
     const id = params.id;
-    const { first_name, last_name, hospcode, ingress_zone, province_code, enabled } = body;
+    const { first_name, last_name, hospcode, ingress_zone, province_code, enabled, email } = body;
 
     try {
       let user: IUpdateUser = {
@@ -116,7 +117,8 @@ export default async (fastify: FastifyInstance) => {
         hospcode,
         ingress_zone,
         enabled: enabled === 'Y' ? true : false,
-        province_code
+        province_code,
+        email
       };
 
       const { data, error } = await userModel.update(postgrest, id, user);
