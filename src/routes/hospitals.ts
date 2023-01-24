@@ -21,10 +21,10 @@ export default async (fastify: FastifyInstance) => {
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
     const query: any = request.query;
-    const province_code = query.province_code;
+    const zone_code = query.zone_code;
 
     try {
-      const { data, error } = await hospitalModel.list(postgrest, province_code);
+      const { data, error } = await hospitalModel.list(postgrest, zone_code);
 
       if (error) {
         request.log.error(error);
@@ -58,14 +58,14 @@ export default async (fastify: FastifyInstance) => {
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
     const body: any = request.body;
-    const { hospcode, hospname, province_code, enabled } = body;
+    const { hospcode, hospname, zone_code, enabled } = body;
 
     try {
       let hospital: ICreateHospital = {
         hospcode,
         hospname,
         enabled: enabled === 'Y' ? true : false,
-        province_code
+        zone_code
       };
 
       const { data, error } = await hospitalModel.save(postgrest, hospital);
@@ -100,13 +100,13 @@ export default async (fastify: FastifyInstance) => {
     const body: any = request.body;
     const params: any = request.params;
     const hospcode = params.hospcode;
-    const { hospname, province_code, enabled } = body;
+    const { hospname, zone_code, enabled } = body;
 
     try {
       let hospital: IUpdateHospital = {
         hospname,
         enabled: enabled === 'Y' ? true : false,
-        province_code
+        zone_code
       };
 
       const { data, error } = await hospitalModel.update(postgrest, hospcode, hospital);

@@ -4,14 +4,14 @@ export class HospitalModel {
 
   constructor () { }
 
-  async list(postgrest: any, province_code: any) {
+  async list(postgrest: any, zone_code: any) {
     let query = postgrest
       .from('hospitals')
       .select('hospcode,hospname,enabled,is_deleted,zones(code,name,ingress_topic)')
       .order('hospname', { ascending: true })
 
-    if (province_code) {
-      query.eq('province_code', province_code)
+    if (zone_code) {
+      query.eq('zone_code', zone_code)
     }
 
     return await query.limit(100);
