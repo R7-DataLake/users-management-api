@@ -1,15 +1,15 @@
-import { ICreateHospital, IUpdateHospital } from "../types/hospital";
+import { Knex } from 'knex'
 
 export class ZoneModel {
 
   constructor () { }
 
-  async list(postgrest: any) {
-    return await postgrest
+  async list(db: Knex) {
+    return await db
       .from('zones')
       .select()
-      .order('name', { ascending: true })
-      .eq('enabled', true);
+      .where('enabled', true)
+      .orderBy('name', 'asc');
   }
 
 }

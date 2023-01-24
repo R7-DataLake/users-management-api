@@ -1,19 +1,28 @@
-import { ICreateHospital, IUpdateHospital } from "../types/hospital";
+import { Knex } from 'knex'
 
 export class LibModel {
 
   constructor () { }
 
-  async hospitals(postgrest: any, zone_code: any) {
-    let query = postgrest
-      .from('hospitals')
-      .select('hospcode,hospname,zones(code,name,ingress_zone)')
-      .order('hospname', { ascending: true })
-      .eq('zone_code', zone_code)
-      .eq('is_deleted', false)
-      .eq('enabled', true);
+  async hospitals(db: Knex, zone_code: any) {
+    let query = db
+      .from('hospitals as h')
+      .innerJoin('zones as z', 'z.code', 'h.zone_code')
+      .select('h.hospcode', 'h.hospname', 'h.zone_code', 'z.code as zone_code', 'z.ingress_zone')
+      .orderBy('h.hospname', 'asc')
+      .where('h.zone_code', zone_code)
+      .where('h.is_deleted', false)
+      .where('h.enabled', true);
 
-    return await query.limit(100);
+    return query.limit(100);
+  }
+
+  async zones(db: Knex) {
+    return db
+      .from('zones')
+      .select()
+      .orderBy('name', 'asc')
+      .where('enabled', true);
   }
 
 }

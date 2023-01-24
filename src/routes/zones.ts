@@ -3,31 +3,25 @@ import {
   StatusCodes,
   getReasonPhrase,
 } from 'http-status-codes';
+import { Knex } from "knex";
 
 import { ZoneModel } from '../models/zone';
 
 export default async (fastify: FastifyInstance) => {
 
   const zoneModel = new ZoneModel();
-  const postgrest = fastify.postgrest;
+  const db: Knex = fastify.db;
 
   fastify.get('/zones', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
     try {
-      const { data, error } = await zoneModel.list(postgrest);
+      const data = await zoneModel.list(db);
 
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send(error)
-      } else {
-        reply
-          .status(StatusCodes.OK)
-          .send(data);
-      }
+      reply
+        .status(StatusCodes.OK)
+        .send(data);
 
     } catch (error: any) {
       request.log.error(error);

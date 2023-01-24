@@ -3,6 +3,7 @@ import {
   StatusCodes,
   getReasonPhrase,
 } from 'http-status-codes';
+import { Knex } from "knex";
 
 const bcrypt = require('bcrypt');
 
@@ -16,32 +17,21 @@ import { ICreateUser, IUpdateUser } from "../types/user";
 export default async (fastify: FastifyInstance) => {
 
   const userModel = new UserModel();
-  const postgrest = fastify.postgrest;
+  const db: Knex = fastify.db;
 
   fastify.get('/users', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
     const query: any = request.query;
-    const province_code = query.province_code;
+    const zone_code = query.zone_code;
 
     try {
-      const { data, error } = await userModel.list(postgrest, province_code);
+      const data = await userModel.list(db, zone_code);
 
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send({
-            code: error.code,
-            details: error.details,
-            message: error.message
-          })
-      } else {
-        reply
-          .status(StatusCodes.OK)
-          .send(data);
-      }
+      reply
+        .status(StatusCodes.OK)
+        .send(data);
 
     } catch (error: any) {
       request.log.error(error);
@@ -76,18 +66,11 @@ export default async (fastify: FastifyInstance) => {
         email
       };
 
-      const { data, error } = await userModel.save(postgrest, user);
+      await userModel.save(db, user);
 
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send(error)
-      } else {
-        reply
-          .status(StatusCodes.CREATED)
-          .send(getReasonPhrase(StatusCodes.CREATED));
-      }
+      reply
+        .status(StatusCodes.CREATED)
+        .send(getReasonPhrase(StatusCodes.CREATED));
 
     } catch (error: any) {
       request.log.error(error);
@@ -121,18 +104,11 @@ export default async (fastify: FastifyInstance) => {
         email
       };
 
-      const { data, error } = await userModel.update(postgrest, id, user);
+      await userModel.update(db, id, user);
 
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send(error)
-      } else {
-        reply
-          .status(StatusCodes.OK)
-          .send(getReasonPhrase(StatusCodes.OK));
-      }
+      reply
+        .status(StatusCodes.OK)
+        .send(getReasonPhrase(StatusCodes.OK));
 
     } catch (error: any) {
       request.log.error(error);
@@ -154,18 +130,11 @@ export default async (fastify: FastifyInstance) => {
     const id = params.id;
 
     try {
-      const { data, error } = await userModel.delete(postgrest, id);
+      await userModel.delete(db, id);
 
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send(error)
-      } else {
-        reply
-          .status(StatusCodes.OK)
-          .send(getReasonPhrase(StatusCodes.OK));
-      }
+      reply
+        .status(StatusCodes.OK)
+        .send(getReasonPhrase(StatusCodes.OK));
 
     } catch (error: any) {
       request.log.error(error);
@@ -188,18 +157,11 @@ export default async (fastify: FastifyInstance) => {
 
     try {
       const hash = bcrypt.hashSync(password, 10);
-      const { data, error } = await userModel.changePassword(postgrest, id, hash);
+      await userModel.changePassword(db, id, hash);
 
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send(error)
-      } else {
-        reply
-          .status(StatusCodes.OK)
-          .send(getReasonPhrase(StatusCodes.OK));
-      }
+      reply
+        .status(StatusCodes.OK)
+        .send(getReasonPhrase(StatusCodes.OK));
 
     } catch (error: any) {
       request.log.error(error);
