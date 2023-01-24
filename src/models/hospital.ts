@@ -7,7 +7,7 @@ export class HospitalModel {
   async list(postgrest: any, province_code: any) {
     let query = postgrest
       .from('hospitals')
-      .select('hospcode,hospname,province_code,enabled,is_deleted')
+      .select('hospcode,hospname,enabled,is_deleted,zones(code,name,ingress_topic)')
       .order('hospname', { ascending: true })
 
     if (province_code) {
