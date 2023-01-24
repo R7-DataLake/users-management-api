@@ -16,13 +16,12 @@ export class UserModel {
         'u.username', 'u.enabled', 'u.is_deleted',
         'u.email', 'u.last_login', 'h.hospcode', 'h.hospname', 'z.name as zone_name', 'z.ingress_zone')
 
-
     if (zone_code) {
       query.where('h.zone_code', zone_code)
     }
 
     return await query
-      .orderBy('u.first_name', 'asc')
+      .orderByRaw('u.first_name asc, z.name asc')
       .limit(100);
   }
 

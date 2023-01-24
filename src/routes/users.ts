@@ -50,7 +50,11 @@ export default async (fastify: FastifyInstance) => {
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
     const body: any = request.body;
-    const { username, password, first_name, last_name, hospcode, ingress_zone, province_code, enabled, email } = body;
+    const {
+      username, password,
+      first_name, last_name,
+      hospcode, enabled,
+      email } = body;
 
     try {
       const hash = bcrypt.hashSync(password, 10);
@@ -60,9 +64,7 @@ export default async (fastify: FastifyInstance) => {
         first_name,
         last_name,
         hospcode,
-        ingress_zone,
         enabled: enabled === 'Y' ? true : false,
-        province_code,
         email
       };
 

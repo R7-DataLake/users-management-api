@@ -3,6 +3,7 @@ import path, { join } from 'path';
 const autoload = require('@fastify/autoload')
 const requestId = require('fastify-request-id')
 const helmet = require('@fastify/helmet')
+const compress = require('@fastify/compress');
 
 require('dotenv').config({ path: join(__dirname, '../config.conf') })
 
@@ -30,6 +31,7 @@ app.register(
   helmet,
   { contentSecurityPolicy: false }
 )
+app.register(compress);
 // Rate limit
 app.register(import('@fastify/rate-limit'), {
   global: false,
