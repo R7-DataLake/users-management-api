@@ -4,12 +4,12 @@ export class LibModel {
 
   constructor () { }
 
-  async hospitals(postgrest: any, province_code: any) {
+  async hospitals(postgrest: any, zone_code: any) {
     let query = postgrest
       .from('hospitals')
       .select('hospcode,hospname,zones(code,name,ingress_topic)')
       .order('hospname', { ascending: true })
-      .eq('province_code', province_code)
+      .eq('zone_code', zone_code)
       .eq('is_deleted', false)
       .eq('enabled', true);
 
