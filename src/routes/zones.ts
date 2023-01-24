@@ -22,11 +22,7 @@ export default async (fastify: FastifyInstance) => {
         request.log.error(error);
         reply
           .status(StatusCodes.BAD_GATEWAY)
-          .send({
-            code: error.code,
-            details: error.details,
-            message: error.message
-          })
+          .send(error)
       } else {
         reply
           .status(StatusCodes.OK)

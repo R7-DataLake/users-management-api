@@ -7,7 +7,7 @@ export class LibModel {
   async hospitals(postgrest: any, zone_code: any) {
     let query = postgrest
       .from('hospitals')
-      .select('hospcode,hospname,zones(code,name,ingress_topic)')
+      .select('hospcode,hospname,zones(code,name,ingress_zone)')
       .order('hospname', { ascending: true })
       .eq('zone_code', zone_code)
       .eq('is_deleted', false)
