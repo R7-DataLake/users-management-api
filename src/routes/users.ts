@@ -27,8 +27,31 @@ export default async (fastify: FastifyInstance) => {
     const zone_code = query.zone_code;
 
     try {
-      const data = await userModel.list(db, zone_code);
+      const data = await userModel.list(db, zone_code)
+      reply
+        .status(StatusCodes.OK)
+        .send(data);
 
+    } catch (error: any) {
+      request.log.error(error);
+      reply
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send({
+          code: StatusCodes.INTERNAL_SERVER_ERROR,
+          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+        });
+    }
+  })
+
+  fastify.get('/users/:id/info', {
+    onRequest: [fastify.authenticate],
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+
+    const params: any = request.params;
+    const id = params.id;
+
+    try {
+      const data = await userModel.info(db, id)
       reply
         .status(StatusCodes.OK)
         .send(data);
@@ -90,19 +113,17 @@ export default async (fastify: FastifyInstance) => {
     schema: updateUserSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const body: any = request.body;
-    const params: any = request.params;
-    const id = params.id;
-    const { first_name, last_name, hospcode, ingress_zone, province_code, enabled, email } = body;
+    const body: any = request.body
+    const params: any = request.params
+    const id = params.id
+    const { first_name, last_name, hospcode, enabled, email } = body
 
     try {
       let user: IUpdateUser = {
         first_name,
         last_name,
         hospcode,
-        ingress_zone,
         enabled: enabled === 'Y' ? true : false,
-        province_code,
         email
       };
 
