@@ -7,7 +7,7 @@ export class HospitalModel {
   async list(db: Knex, zone_code: any) {
     let query = db
       .from('hospitals as h')
-      .select('h.hospcode', 'h.hospname', 'h.enabled', 'h.is_deleted')
+      .select('h.hospcode', 'h.hospname', 'h.enabled', 'h.is_deleted', 'h.zone_code', 'z.name as zone_name')
       .innerJoin('zones as z', 'z.code', 'h.zone_code')
       .orderBy('h.hospname', 'asc')
 
@@ -16,6 +16,15 @@ export class HospitalModel {
     }
 
     return query.limit(100);
+  }
+
+  async info(db: Knex, hospcode: any) {
+    return db
+      .from('hospitals as h')
+      .select('h.hospcode', 'h.hospname', 'h.enabled', 'h.is_deleted', 'h.zone_code', 'z.name as zone_name')
+      .innerJoin('zones as z', 'z.code', 'h.zone_code')
+      .where('h.hospcode', hospcode)
+      .first()
   }
 
   async save(db: Knex, hospital: ICreateHospital) {

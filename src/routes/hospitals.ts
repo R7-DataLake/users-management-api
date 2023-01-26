@@ -43,6 +43,31 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
+  fastify.get('/hospitals/:hospcode/info', {
+    onRequest: [fastify.authenticate],
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+
+    const params: any = request.params;
+    const hospcode = params.hospcode;
+
+    try {
+      const data = await hospitalModel.info(db, hospcode);
+
+      reply
+        .status(StatusCodes.OK)
+        .send(data);
+
+    } catch (error: any) {
+      request.log.error(error);
+      reply
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send({
+          code: StatusCodes.INTERNAL_SERVER_ERROR,
+          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+        });
+    }
+  })
+
   fastify.post('/hospitals', {
     onRequest: [fastify.authenticate],
     schema: createSchema,
