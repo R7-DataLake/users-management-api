@@ -45,11 +45,24 @@ app.addHook('onSend', (request: any, reply: any, playload: any, next: any) => {
   next();
 });
 
-// PostgREST
-app.register(require('./plugins/postgrest'), {
-  url: process.env.USM_PGRST_URL,
-  key: process.env.USM_PGRST_KEY,
-  schema: process.env.USM_PGRS_SCHEMA
+// Database
+app.register(require('./plugins/db'), {
+  options: {
+    client: 'pg',
+    connection: {
+      host: process.env.USM_DB_HOST || 'localhost',
+      user: process.env.USM_DB_USER || 'postgres',
+      port: Number(process.env.USM_DB_PORT) || 5432,
+      password: process.env.USM_DB_PASSWORD || '',
+      database: process.env.USM_DB_NAME || 'test',
+    },
+    searchPath: [process.env.USM_DB_SCHEMA || 'public'],
+    pool: {
+      min: 10,
+      max: 500
+    },
+    debug: process.env.DB_DEBUG === "Y" ? true : false,
+  }
 })
 
 // JWT
