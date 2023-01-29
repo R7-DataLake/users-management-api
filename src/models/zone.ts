@@ -9,7 +9,7 @@ export class ZoneModel {
       .from('zones')
       .select()
       .where('enabled', true)
-      .orderBy('name', 'asc');
+      .orderBy('name', 'asc')
   }
 
 }

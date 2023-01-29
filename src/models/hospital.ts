@@ -1,5 +1,5 @@
 import { Knex } from 'knex'
-import { ICreateHospital, IUpdateHospital } from "../types/hospital";
+import { ICreateHospital, IUpdateHospital } from "../types/hospital"
 export class HospitalModel {
 
   constructor () { }
@@ -15,7 +15,7 @@ export class HospitalModel {
       query.where('h.zone_code', zone_code)
     }
 
-    return query.limit(100);
+    return query.limit(100)
   }
 
   async info(db: Knex, hospcode: any) {

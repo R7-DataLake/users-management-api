@@ -2,19 +2,18 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
   StatusCodes,
   getReasonPhrase,
-} from 'http-status-codes';
+} from 'http-status-codes'
 
-const bcrypt = require('bcrypt');
-const randomstring = require('randomstring');
-import { Knex } from "knex";
+const randomstring = require('randomstring')
+import { Knex } from "knex"
 
 import { LoginModel } from '../models/login'
-import loginSchema from '../schema/login';
+import loginSchema from '../schema/login'
 
 export default async (fastify: FastifyInstance) => {
 
-  const loginModel = new LoginModel();
-  const db: Knex = fastify.db;
+  const loginModel = new LoginModel()
+  const db: Knex = fastify.db
 
   fastify.post('/login', {
     config: {
@@ -25,9 +24,8 @@ export default async (fastify: FastifyInstance) => {
     },
     schema: loginSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
-    const body: any = request.body;
-    const username = body.username;
-    const password = body.password;
+    const body: any = request.body
+    const { username, password } = body
 
     try {
       const hash: any = await fastify.hashPassword(password)
@@ -35,10 +33,10 @@ export default async (fastify: FastifyInstance) => {
 
       if (data) {
         const payload: any = { sub: data.id }
-        const token = fastify.jwt.sign(payload);
+        const token = fastify.jwt.sign(payload)
         reply
           .status(StatusCodes.OK)
-          .send({ access_token: token });
+          .send({ access_token: token })
       } else {
         reply
           .status(StatusCodes.UNAUTHORIZED)
@@ -68,10 +66,10 @@ export default async (fastify: FastifyInstance) => {
     }
   }, async (_request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const password: any = randomstring.generate(8);
-      const hash = bcrypt.hashSync(password, 10);
+      const password: any = randomstring.generate(8)
+      const hash = await fastify.hashPassword(password)
       reply.status(StatusCodes.OK).send({ password, hash })
-    } catch (e) {
+    } catch (error: any) {
       reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send()
     }
   })

@@ -1,39 +1,37 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import {
   StatusCodes,
   getReasonPhrase,
-} from 'http-status-codes';
-import { Knex } from "knex";
-
-const bcrypt = require('bcrypt');
+} from 'http-status-codes'
+import { Knex } from "knex"
 
 import { UserModel } from '../models/user'
-import removeSchema from '../schema/user/remove';
-import createUserSchema from '../schema/user/create';
-import updateUserSchema from '../schema/user/update';
-import changePasswordSchema from '../schema/user/change_password';
-import { ICreateUser, IUpdateUser } from "../types/user";
+import removeSchema from '../schema/user/remove'
+import createUserSchema from '../schema/user/create'
+import updateUserSchema from '../schema/user/update'
+import changePasswordSchema from '../schema/user/change_password'
+import { ICreateUser, IUpdateUser } from "../types/user"
 
 export default async (fastify: FastifyInstance) => {
 
-  const userModel = new UserModel();
-  const db: Knex = fastify.db;
+  const userModel = new UserModel()
+  const db: Knex = fastify.db
 
   fastify.get('/users', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const query: any = request.query;
-    const zone_code = query.zone_code;
+    const query: any = request.query
+    const zone_code = query.zone_code
 
     try {
       const data = await userModel.list(db, zone_code)
       reply
         .status(StatusCodes.OK)
-        .send(data);
+        .send(data)
 
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
@@ -47,8 +45,8 @@ export default async (fastify: FastifyInstance) => {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const params: any = request.params;
-    const id = params.id;
+    const params: any = request.params
+    const id = params.id
 
     try {
       const data = await userModel.info(db, id)
@@ -57,7 +55,7 @@ export default async (fastify: FastifyInstance) => {
         .send(data);
 
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
@@ -72,15 +70,15 @@ export default async (fastify: FastifyInstance) => {
     schema: createUserSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const body: any = request.body;
+    const body: any = request.body
     const {
       username, password,
       first_name, last_name,
       hospcode, enabled,
-      email } = body;
+      email } = body
 
     try {
-      const hash = bcrypt.hashSync(password, 10);
+      const hash = await fastify.hashPassword(password)
       let user: ICreateUser = {
         username: username,
         password: hash,
@@ -91,14 +89,14 @@ export default async (fastify: FastifyInstance) => {
         email
       };
 
-      await userModel.save(db, user);
+      await userModel.save(db, user)
 
       reply
         .status(StatusCodes.CREATED)
-        .send(getReasonPhrase(StatusCodes.CREATED));
+        .send(getReasonPhrase(StatusCodes.CREATED))
 
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
@@ -127,7 +125,7 @@ export default async (fastify: FastifyInstance) => {
         email
       };
 
-      await userModel.update(db, id, user);
+      await userModel.update(db, id, user)
 
       reply
         .status(StatusCodes.OK)
@@ -149,15 +147,15 @@ export default async (fastify: FastifyInstance) => {
     schema: removeSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const params: any = request.params;
-    const id = params.id;
+    const params: any = request.params
+    const id = params.id
 
     try {
-      await userModel.delete(db, id);
+      await userModel.delete(db, id)
 
       reply
         .status(StatusCodes.OK)
-        .send(getReasonPhrase(StatusCodes.OK));
+        .send(getReasonPhrase(StatusCodes.OK))
 
     } catch (error: any) {
       request.log.error(error);
@@ -175,16 +173,16 @@ export default async (fastify: FastifyInstance) => {
     schema: changePasswordSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const body: any = request.body;
-    const { id, password } = body;
+    const body: any = request.body
+    const { id, password } = body
 
     try {
-      const hash = bcrypt.hashSync(password, 10);
-      await userModel.changePassword(db, id, hash);
+      const hash = await fastify.hashPassword(password)
+      await userModel.changePassword(db, id, hash)
 
       reply
         .status(StatusCodes.OK)
-        .send(getReasonPhrase(StatusCodes.OK));
+        .send(getReasonPhrase(StatusCodes.OK))
 
     } catch (error: any) {
       request.log.error(error);
