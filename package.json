@@ -1,13 +1,13 @@
 {
-  "name": "r7-login-api",
+  "name": "r7-usm-api",
   "version": "1.0.0",
-  "description": "R7 Login API Service",
+  "description": "R7 Users Management Service",
   "scripts": {
     "build": "npx gulp",
     "start": "npx nodemon"
   },
   "keywords": [],
-  "author": "",
+  "author": "Satit Rianpit <rianpit@gmail.com>",
   "license": "GPLv3",
   "dependencies": {
     "@fastify/autoload": "^5.7.1",
@@ -17,7 +17,6 @@
     "@fastify/jwt": "^6.5.0",
     "@fastify/rate-limit": "^7.6.0",
     "bcrypt": "^5.1.0",
-    "dotenv": "^16.0.3",
     "fastify": "^4.11.0",
     "fastify-plugin": "^4.5.0",
     "fastify-request-id": "^1.0.1",

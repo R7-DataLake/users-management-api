@@ -9,6 +9,7 @@ declare module 'fastify' {
     authenticate: any
     db: knex
     reqId: any
+    hashPassword: any
   }
 
   interface FastifyRequest {

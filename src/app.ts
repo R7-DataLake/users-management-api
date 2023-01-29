@@ -1,10 +1,9 @@
 import fastify from 'fastify'
-import path, { join } from 'path';
+import path from 'path';
 const autoload = require('@fastify/autoload')
 const requestId = require('fastify-request-id')
 const helmet = require('@fastify/helmet')
-
-require('dotenv').config({ path: join(__dirname, '../config.conf') })
+const crypto = require('crypto')
 
 const app = fastify({
   logger: {
@@ -40,7 +39,7 @@ app.register(import('@fastify/rate-limit'), {
 app.addHook('onSend', (request: any, reply: any, playload: any, next: any) => {
   reply.headers({
     'X-Powered-By': 'R7 Health Platform System',
-    'X-Processed-By': process.env.USM_R7_SERVICE_HOSTNAME || 'dummy-server',
+    'X-Processed-By': process.env.R7PLATFORM_USM_SERVICE_HOSTNAME || 'dummy-server',
   });
   next();
 });
@@ -50,24 +49,24 @@ app.register(require('./plugins/db'), {
   options: {
     client: 'pg',
     connection: {
-      host: process.env.USM_DB_HOST || 'localhost',
-      user: process.env.USM_DB_USER || 'postgres',
-      port: Number(process.env.USM_DB_PORT) || 5432,
-      password: process.env.USM_DB_PASSWORD || '',
-      database: process.env.USM_DB_NAME || 'test',
+      host: process.env.R7PLATFORM_USM_DB_HOST || 'localhost',
+      user: process.env.R7PLATFORM_USM_DB_USER || 'postgres',
+      port: Number(process.env.R7PLATFORM_USM_DB_PORT) || 5432,
+      password: process.env.R7PLATFORM_USM_DB_PASSWORD || '',
+      database: process.env.R7PLATFORM_USM_DB_NAME || 'test',
     },
-    searchPath: [process.env.USM_DB_SCHEMA || 'public'],
+    searchPath: [process.env.R7PLATFORM_USM_DB_SCHEMA || 'public'],
     pool: {
       min: 10,
       max: 500
     },
-    debug: process.env.DB_DEBUG === "Y" ? true : false,
+    debug: process.env.R7PLATFORM_USM_DB_DEBUG === "Y" ? true : false,
   }
 })
 
 // JWT
 app.register(require('./plugins/jwt'), {
-  secret: process.env.USM_SECRET_KEY || '@1234567890@',
+  secret: process.env.R7PLATFORM_USM_SECRET_KEY || '@1234567890@',
   sign: {
     iss: 'r7.moph.go.th',
     expiresIn: '1d'
@@ -80,6 +79,15 @@ app.register(require('./plugins/jwt'), {
       return `Authorization token is invalid: ${err.message}`
     }
   }
+})
+
+// hash password
+app.decorate('hashPassword', async (password: any) => {
+  const salt = process.env.R7PLATFORM_USM_LOGIN_PASSWORD_SALT || 'gwuqpUkUm3jv07Ui0TCqZoZBuaJLztD9'
+  return await crypto
+    .createHash('md5')
+    .update(password + salt)
+    .digest('hex')
 })
 
 // routes
