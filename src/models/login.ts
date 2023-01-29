@@ -10,7 +10,7 @@ export class LoginModel {
       .where('username', username)
       .where('password', password)
       .where('enabled', true)
-      .first();
+      .first()
   }
 
 }

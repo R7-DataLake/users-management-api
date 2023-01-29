@@ -1,0 +1,1 @@
+docker build -t r7platform/usm-api . --no-cache

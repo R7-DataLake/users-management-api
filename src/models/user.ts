@@ -22,7 +22,7 @@ export class UserModel {
 
     return query
       .orderByRaw('u.first_name asc, z.name asc')
-      .limit(100);
+      .limit(100)
   }
 
   async info(db: Knex, id: any) {
@@ -35,7 +35,7 @@ export class UserModel {
         'u.username', 'u.enabled', 'u.is_deleted',
         'u.email', 'u.last_login', 'h.hospcode', 'h.zone_code', 'h.hospname', 'z.name as zone_name', 'z.ingress_zone')
       .where('u.id', id)
-      .first();
+      .first()
   }
 
   async save(db: Knex, user: ICreateUser) {

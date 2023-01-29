@@ -12,9 +12,9 @@ export class LibModel {
       .orderBy('h.hospname', 'asc')
       .where('h.zone_code', zone_code)
       .where('h.is_deleted', false)
-      .where('h.enabled', true);
+      .where('h.enabled', true)
 
-    return query.limit(100);
+    return query.limit(100)
   }
 
   async zones(db: Knex) {
@@ -22,7 +22,7 @@ export class LibModel {
       .from('zones')
       .select()
       .orderBy('name', 'asc')
-      .where('enabled', true);
+      .where('enabled', true)
   }
 
 }
