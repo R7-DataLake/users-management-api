@@ -30,14 +30,11 @@ export default async (fastify: FastifyInstance) => {
     const password = body.password;
 
     try {
-      const data = await loginModel.adminLogin(db, username);
+      const hash: any = await fastify.hashPassword(password)
+      const data = await loginModel.adminLogin(db, username, hash)
 
-      const hash: any = data.password;
-
-      const isOk: any = bcrypt.compareSync(password, hash);
-
-      if (isOk) {
-        const payload: any = { sub: data.id, ingress_zone: data.ingress_zone }
+      if (data) {
+        const payload: any = { sub: data.id }
         const token = fastify.jwt.sign(payload);
         reply
           .status(StatusCodes.OK)

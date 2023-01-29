@@ -3,20 +3,12 @@ export class LoginModel {
 
   constructor () { }
 
-  async adminLogin(db: Knex, username: any) {
+  async adminLogin(db: Knex, username: any, password: any) {
     return await db
       .from('admin')
-      .select('id', 'password')
+      .select('id')
       .where('username', username)
-      .where('enabled', true)
-      .first();
-  }
-
-  async userLogin(db: Knex, username: any) {
-    return await db
-      .from('users')
-      .select('id', 'password')
-      .where('username', username)
+      .where('password', password)
       .where('enabled', true)
       .first();
   }
