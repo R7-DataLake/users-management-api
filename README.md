@@ -3,14 +3,18 @@
 Environments: 
 
 ```
-PGRST_ENDPOINT=http://localhost:3000
-PGRST_TOKEN=xxx.xxx.xxx
+R7PLATFORM_USM_DB_HOST=localhost
+R7PLATFORM_USM_DB_PORT=5433
+R7PLATFORM_USM_DB_NAME=r7platform
+R7PLATFORM_USM_DB_SCHEMA=r7_users
+R7PLATFORM_USM_DB_USER=postgres
+R7PLATFORM_USM_DB_PASSWORD=789124
 
-SECRET_KEY=xxxxxx
+R7PLATFORM_USM_DB_DEBUG=Y
 
-DB_DEBUG=Y
+R7PLATFORM_USM_SECRET_KEY=iNAzrIn2T2zUIt0o1Seh1ZUJFPtV22xD
 
-NODE_ENV=development
+R7PLATFORM_USM_SERVICE_HOSTNAME=Doraemon
 ```
 
 # Run
@@ -25,25 +29,3 @@ npm start
 npm run build
 ```
 
-# Grant database permission
-
-```sql
-create role authenticator noinherit login password 'xxxxxx';
-
-create role myname nologin;
-grant myname to authenticator;
-grant usage on schema public to myname;
-grant all on public.users to myname;
-```
-
-# Create JWT
-
-```json
-{
-  "sub": "1234567890",
-  "name": "John Doe",
-  "iat": 1516239022,
-  "exp": 1674217011,
-  "role": "myname"
-}
-```
