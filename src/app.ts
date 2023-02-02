@@ -40,8 +40,8 @@ app.addHook('onSend', (request: any, reply: any, playload: any, next: any) => {
   reply.headers({
     'X-Powered-By': 'R7 Health Platform System',
     'X-Processed-By': process.env.R7PLATFORM_USM_SERVICE_HOSTNAME || 'dummy-server',
-  });
-  next();
+  })
+  next()
 });
 
 // Database
