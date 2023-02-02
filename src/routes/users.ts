@@ -37,7 +37,7 @@ export default async (fastify: FastifyInstance) => {
         .send({
           code: StatusCodes.INTERNAL_SERVER_ERROR,
           error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
+        })
     }
   })
 
@@ -52,7 +52,7 @@ export default async (fastify: FastifyInstance) => {
       const data = await userModel.info(db, id)
       reply
         .status(StatusCodes.OK)
-        .send(data);
+        .send(data)
 
     } catch (error: any) {
       request.log.error(error)
@@ -61,7 +61,7 @@ export default async (fastify: FastifyInstance) => {
         .send({
           code: StatusCodes.INTERNAL_SERVER_ERROR,
           error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
+        })
     }
   })
 
@@ -129,16 +129,16 @@ export default async (fastify: FastifyInstance) => {
 
       reply
         .status(StatusCodes.OK)
-        .send(getReasonPhrase(StatusCodes.OK));
+        .send(getReasonPhrase(StatusCodes.OK))
 
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
           code: StatusCodes.INTERNAL_SERVER_ERROR,
           error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
+        })
     }
   })
 
@@ -158,13 +158,13 @@ export default async (fastify: FastifyInstance) => {
         .send(getReasonPhrase(StatusCodes.OK))
 
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
           code: StatusCodes.INTERNAL_SERVER_ERROR,
           error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
+        })
     }
   })
 
@@ -185,13 +185,13 @@ export default async (fastify: FastifyInstance) => {
         .send(getReasonPhrase(StatusCodes.OK))
 
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
           code: StatusCodes.INTERNAL_SERVER_ERROR,
           error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
+        })
     }
   })
 

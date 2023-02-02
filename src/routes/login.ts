@@ -1,4 +1,4 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import {
   StatusCodes,
   getReasonPhrase,
@@ -43,17 +43,17 @@ export default async (fastify: FastifyInstance) => {
           .send({
             code: StatusCodes.UNAUTHORIZED,
             error: getReasonPhrase(StatusCodes.UNAUTHORIZED)
-          });
+          })
       }
 
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
           code: StatusCodes.INTERNAL_SERVER_ERROR,
           error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
+        })
     }
   })
 
