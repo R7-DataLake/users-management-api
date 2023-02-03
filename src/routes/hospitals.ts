@@ -1,48 +1,63 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import {
   StatusCodes,
   getReasonPhrase,
-} from 'http-status-codes';
+} from 'http-status-codes'
+import { Knex } from "knex"
 
-import { HospitalModel } from '../models/hospital';
+import { HospitalModel } from '../models/hospital'
 
-import removeSchema from '../schema/user/remove';
-import createSchema from '../schema/hospital/create';
-import updateSchema from '../schema/hospital/update';
-import { ICreateHospital, IUpdateHospital } from "../types/hospital";
+import removeSchema from '../schema/user/remove'
+import createSchema from '../schema/hospital/create'
+import updateSchema from '../schema/hospital/update'
+import { ICreateHospital, IUpdateHospital } from "../types/hospital"
 
 export default async (fastify: FastifyInstance) => {
 
-  const hospitalModel = new HospitalModel();
-  const postgrest = fastify.postgrest;
+  const hospitalModel = new HospitalModel()
+  const db: Knex = fastify.db
 
   fastify.get('/hospitals', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const query: any = request.query;
-    const province_code = query.province_code;
+    const query: any = request.query
+    const zone_code = query.zone_code
 
     try {
-      const { data, error } = await hospitalModel.list(postgrest, province_code);
+      const data = await hospitalModel.list(db, zone_code)
 
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send({
-            code: error.code,
-            details: error.details,
-            message: error.message
-          })
-      } else {
-        reply
-          .status(StatusCodes.OK)
-          .send(data);
-      }
+      reply
+        .status(StatusCodes.OK)
+        .send(data)
 
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
+      reply
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send({
+          code: StatusCodes.INTERNAL_SERVER_ERROR,
+          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+        });
+    }
+  })
+
+  fastify.get('/hospitals/:hospcode/info', {
+    onRequest: [fastify.authenticate],
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+
+    const params: any = request.params
+    const hospcode = params.hospcode
+
+    try {
+      const data = await hospitalModel.info(db, hospcode)
+
+      reply
+        .status(StatusCodes.OK)
+        .send(data)
+
+    } catch (error: any) {
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
@@ -57,38 +72,31 @@ export default async (fastify: FastifyInstance) => {
     schema: createSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const body: any = request.body;
-    const { hospcode, hospname, province_code, enabled } = body;
+    const body: any = request.body
+    const { hospcode, hospname, zone_code, enabled } = body
 
     try {
       let hospital: ICreateHospital = {
         hospcode,
         hospname,
         enabled: enabled === 'Y' ? true : false,
-        province_code
-      };
-
-      const { data, error } = await hospitalModel.save(postgrest, hospital);
-
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send(error)
-      } else {
-        reply
-          .status(StatusCodes.CREATED)
-          .send(getReasonPhrase(StatusCodes.CREATED));
+        zone_code
       }
 
+      await hospitalModel.save(db, hospital)
+
+      reply
+        .status(StatusCodes.CREATED)
+        .send(getReasonPhrase(StatusCodes.CREATED))
+
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
           code: StatusCodes.INTERNAL_SERVER_ERROR,
           error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
+        })
     }
   })
 
@@ -97,39 +105,29 @@ export default async (fastify: FastifyInstance) => {
     schema: updateSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const body: any = request.body;
-    const params: any = request.params;
-    const hospcode = params.hospcode;
-    const { hospname, province_code, enabled } = body;
+    const body: any = request.body
+    const params: any = request.params
+    const hospcode = params.hospcode
+    const { hospname, zone_code, enabled } = body
 
     try {
       let hospital: IUpdateHospital = {
         hospname,
         enabled: enabled === 'Y' ? true : false,
-        province_code
+        zone_code
       };
-
-      const { data, error } = await hospitalModel.update(postgrest, hospcode, hospital);
-
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send(error)
-      } else {
-        reply
-          .status(StatusCodes.OK)
-          .send(getReasonPhrase(StatusCodes.OK));
-      }
-
+      await hospitalModel.update(db, hospcode, hospital)
+      reply
+        .status(StatusCodes.OK)
+        .send(getReasonPhrase(StatusCodes.OK))
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
           code: StatusCodes.INTERNAL_SERVER_ERROR,
           error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
+        })
     }
   })
 
@@ -138,31 +136,22 @@ export default async (fastify: FastifyInstance) => {
     schema: removeSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
-    const params: any = request.params;
-    const hospcode = params.hospcode;
+    const params: any = request.params
+    const hospcode = params.hospcode
 
     try {
-      const { data, error } = await hospitalModel.delete(postgrest, hospcode);
-
-      if (error) {
-        request.log.error(error);
-        reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send(error)
-      } else {
-        reply
-          .status(StatusCodes.OK)
-          .send(getReasonPhrase(StatusCodes.OK));
-      }
-
+      await hospitalModel.delete(db, hospcode)
+      reply
+        .status(StatusCodes.OK)
+        .send(getReasonPhrase(StatusCodes.OK))
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
           code: StatusCodes.INTERNAL_SERVER_ERROR,
           error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
+        })
     }
   })
 

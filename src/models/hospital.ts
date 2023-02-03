@@ -1,37 +1,47 @@
-import { ICreateHospital, IUpdateHospital } from "../types/hospital";
-
+import { Knex } from 'knex'
+import { ICreateHospital, IUpdateHospital } from "../types/hospital"
 export class HospitalModel {
 
   constructor () { }
 
-  async list(postgrest: any, province_code: any) {
-    let query = postgrest
-      .from('hospitals')
-      .select('hospcode,hospname,province_code,enabled,is_deleted')
-      .order('hospname', { ascending: true })
+  async list(db: Knex, zone_code: any) {
+    let query = db
+      .from('hospitals as h')
+      .select('h.hospcode', 'h.hospname', 'h.enabled', 'h.is_deleted', 'h.zone_code', 'z.name as zone_name')
+      .innerJoin('zones as z', 'z.code', 'h.zone_code')
+      .orderBy('h.hospname', 'asc')
 
-    if (province_code) {
-      query.eq('province_code', province_code)
+    if (zone_code) {
+      query.where('h.zone_code', zone_code)
     }
 
-    return await query.limit(100);
+    return query.limit(100)
   }
 
-  async save(postgrest: any, hospital: ICreateHospital) {
-    return await postgrest.from('hospitals')
+  async info(db: Knex, hospcode: any) {
+    return db
+      .from('hospitals as h')
+      .select('h.hospcode', 'h.hospname', 'h.enabled', 'h.is_deleted', 'h.zone_code', 'z.name as zone_name')
+      .innerJoin('zones as z', 'z.code', 'h.zone_code')
+      .where('h.hospcode', hospcode)
+      .first()
+  }
+
+  async save(db: Knex, hospital: ICreateHospital) {
+    return db.from('hospitals')
       .insert(hospital)
   }
 
-  async update(postgrest: any, hospcode: any, hospital: IUpdateHospital) {
-    return await postgrest.from('hospitals')
+  async update(db: Knex, hospcode: any, hospital: IUpdateHospital) {
+    return db.from('hospitals')
       .update(hospital)
-      .eq('hospcode', hospcode)
+      .where('hospcode', hospcode)
   }
 
-  async delete(postgrest: any, hospcode: any) {
-    return await postgrest.from('hospitals')
+  async delete(db: Knex, hospcode: any) {
+    return db.from('hospitals')
       .update({ 'is_deleted': true })
-      .eq('hospcode', hospcode)
+      .where('hospcode', hospcode)
   }
 
 }

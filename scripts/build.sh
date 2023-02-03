@@ -1,0 +1,1 @@
+docker build -t mophos/r7platform-usm-api . --no-cache

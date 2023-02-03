@@ -1,10 +1,9 @@
 import fastify from 'fastify'
-import path, { join } from 'path';
+import path from 'path';
 const autoload = require('@fastify/autoload')
 const requestId = require('fastify-request-id')
 const helmet = require('@fastify/helmet')
-
-require('dotenv').config({ path: join(__dirname, '../config.conf') })
+const bcrypt = require('bcrypt')
 
 const app = fastify({
   logger: {
@@ -40,21 +39,34 @@ app.register(import('@fastify/rate-limit'), {
 app.addHook('onSend', (request: any, reply: any, playload: any, next: any) => {
   reply.headers({
     'X-Powered-By': 'R7 Health Platform System',
-    'X-Processed-By': process.env.USM_R7_SERVICE_HOSTNAME || 'dummy-server',
-  });
-  next();
+    'X-Processed-By': process.env.R7PLATFORM_USM_SERVICE_HOSTNAME || 'dummy-server',
+  })
+  next()
 });
 
-// PostgREST
-app.register(require('./plugins/postgrest'), {
-  url: process.env.USM_PGRST_URL,
-  key: process.env.USM_PGRST_KEY,
-  schema: process.env.USM_PGRS_SCHEMA
+// Database
+app.register(require('./plugins/db'), {
+  options: {
+    client: 'pg',
+    connection: {
+      host: process.env.R7PLATFORM_USM_DB_HOST || 'localhost',
+      user: process.env.R7PLATFORM_USM_DB_USER || 'postgres',
+      port: Number(process.env.R7PLATFORM_USM_DB_PORT) || 5432,
+      password: process.env.R7PLATFORM_USM_DB_PASSWORD || '',
+      database: process.env.R7PLATFORM_USM_DB_NAME || 'test',
+    },
+    searchPath: [process.env.R7PLATFORM_USM_DB_SCHEMA || 'public'],
+    pool: {
+      min: 10,
+      max: 500
+    },
+    debug: process.env.R7PLATFORM_USM_DB_DEBUG === "Y" ? true : false,
+  }
 })
 
 // JWT
 app.register(require('./plugins/jwt'), {
-  secret: process.env.USM_SECRET_KEY || '@1234567890@',
+  secret: process.env.R7PLATFORM_USM_SECRET_KEY || '@1234567890@',
   sign: {
     iss: 'r7.moph.go.th',
     expiresIn: '1d'
@@ -67,6 +79,16 @@ app.register(require('./plugins/jwt'), {
       return `Authorization token is invalid: ${err.message}`
     }
   }
+})
+
+app.decorate('hashPassword', async (password: any) => {
+  const saltRounds = 10
+  return bcrypt.hash(password, saltRounds)
+})
+
+// verify password
+app.decorate('verifyPassword', async (password: any, hash: any) => {
+  return bcrypt.compare(password, hash)
 })
 
 // routes

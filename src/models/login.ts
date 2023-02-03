@@ -1,24 +1,16 @@
-
+import { Knex } from 'knex'
 export class LoginModel {
 
   constructor () { }
 
-  async adminLogin(postgrest: any, username: any) {
-    return await postgrest
+  async adminLogin(db: Knex, username: any, password: any) {
+    return await db
       .from('admin')
-      .select('id,password')
-      .eq('username', username)
-      .eq('enabled', true)
-      .single();
-  }
-
-  async userLogin(postgrest: any, username: any) {
-    return await postgrest
-      .from('users')
-      .select('id,password')
-      .eq('username', username)
-      .eq('enabled', true)
-      .single();
+      .select('id')
+      .where('username', username)
+      .where('password', password)
+      .where('enabled', true)
+      .first()
   }
 
 }

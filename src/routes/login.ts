@@ -1,20 +1,19 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import {
   StatusCodes,
   getReasonPhrase,
-} from 'http-status-codes';
+} from 'http-status-codes'
 
-import crypto from 'crypto';
-const bcrypt = require('bcrypt');
-const randomstring = require('randomstring');
+const randomstring = require('randomstring')
+import { Knex } from "knex"
 
 import { LoginModel } from '../models/login'
-import loginSchema from '../schema/login';
+import loginSchema from '../schema/login'
 
 export default async (fastify: FastifyInstance) => {
 
-  const loginModel = new LoginModel();
-  const postgrest = fastify.postgrest;
+  const loginModel = new LoginModel()
+  const db: Knex = fastify.db
 
   fastify.post('/login', {
     config: {
@@ -25,53 +24,36 @@ export default async (fastify: FastifyInstance) => {
     },
     schema: loginSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
-    const body: any = request.body;
-    const username = body.username;
-    const password = body.password;
+    const body: any = request.body
+    const { username, password } = body
 
     try {
-      const { data, error } = await loginModel.adminLogin(postgrest, username);
+      const hash: any = await fastify.hashPassword(password)
+      const data = await loginModel.adminLogin(db, username, hash)
 
-      if (error) {
-        request.log.error(error);
+      if (data) {
+        const payload: any = { sub: data.id }
+        const token = fastify.jwt.sign(payload)
         reply
-          .status(StatusCodes.BAD_GATEWAY)
-          .send({
-            code: error.code,
-            details: error.details,
-            message: error.message
-          })
+          .status(StatusCodes.OK)
+          .send({ access_token: token })
       } else {
-
-        const hash: any = data.password;
-
-        const isOk: any = bcrypt.compareSync(password, hash);
-
-        if (isOk) {
-          const payload: any = { sub: data.id, ingress_zone: data.ingress_zone }
-          const token = fastify.jwt.sign(payload);
-          reply
-            .status(StatusCodes.OK)
-            .send({ access_token: token });
-        } else {
-          reply
-            .status(StatusCodes.UNAUTHORIZED)
-            .send({
-              code: StatusCodes.UNAUTHORIZED,
-              error: getReasonPhrase(StatusCodes.UNAUTHORIZED)
-            });
-        }
-
+        reply
+          .status(StatusCodes.UNAUTHORIZED)
+          .send({
+            code: StatusCodes.UNAUTHORIZED,
+            error: getReasonPhrase(StatusCodes.UNAUTHORIZED)
+          })
       }
 
     } catch (error: any) {
-      request.log.error(error);
+      request.log.error(error)
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
           code: StatusCodes.INTERNAL_SERVER_ERROR,
           error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
-        });
+        })
     }
   })
 
@@ -84,10 +66,10 @@ export default async (fastify: FastifyInstance) => {
     }
   }, async (_request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const password: any = randomstring.generate(8);
-      const hash = bcrypt.hashSync(password, 10);
+      const password: any = randomstring.generate(8)
+      const hash = await fastify.hashPassword(password)
       reply.status(StatusCodes.OK).send({ password, hash })
-    } catch (e) {
+    } catch (error: any) {
       reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send()
     }
   })
