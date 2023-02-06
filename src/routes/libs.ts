@@ -12,7 +12,7 @@ export default async (fastify: FastifyInstance) => {
   const libModel = new LibModel()
   const db: Knex = fastify.db
 
-  fastify.get('/libs/hospitals', {
+  fastify.get('/hospitals', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
@@ -37,7 +37,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.get('/libs/zones', {
+  fastify.get('/zones', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 

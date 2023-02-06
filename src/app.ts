@@ -92,8 +92,11 @@ app.decorate('verifyPassword', async (password: any, hash: any) => {
 })
 
 // routes
-app.register(autoload, {
-  dir: path.join(__dirname, 'routes')
-})
+app.register(require("./routes/health_check"), { prefix: '/health-check' })
+app.register(require("./routes/hospitals"), { prefix: '/hospitals' })
+app.register(require("./routes/libs"), { prefix: '/libs' })
+app.register(require("./routes/login"), { prefix: '/login' })
+app.register(require("./routes/users"), { prefix: '/users' })
+app.register(require("./routes/zones"), { prefix: '/zones' })
 
 export default app;

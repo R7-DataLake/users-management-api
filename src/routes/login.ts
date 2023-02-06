@@ -15,7 +15,7 @@ export default async (fastify: FastifyInstance) => {
   const loginModel = new LoginModel()
   const db: Knex = fastify.db
 
-  fastify.post('/login', {
+  fastify.post('/', {
     config: {
       rateLimit: {
         max: 10,
