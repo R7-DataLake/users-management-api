@@ -28,21 +28,44 @@ export default async (fastify: FastifyInstance) => {
     const { username, password } = body
 
     try {
-      const hash: any = await fastify.hashPassword(password)
-      const data = await loginModel.adminLogin(db, username, hash)
+      const data = await loginModel.adminLogin(db, username)
 
       if (data) {
-        const payload: any = { sub: data.id }
-        const token = fastify.jwt.sign(payload)
-        reply
-          .status(StatusCodes.OK)
-          .send({ access_token: token })
+        const hashPassword: any = data.password
+        const match: any = await fastify.verifyPassword(password, hashPassword)
+
+        if (match) {
+          const payload: any = { sub: data.id }
+          const token = fastify.jwt.sign(payload)
+          reply
+            .status(StatusCodes.OK)
+            .send({
+              status: 'success',
+              access_token: token
+            })
+        } else {
+          reply
+            .status(StatusCodes.UNAUTHORIZED)
+            .send({
+              status: 'error',
+              error: {
+                code: StatusCodes.UNAUTHORIZED,
+                message: 'Username or Password invalid.'
+              }
+
+            })
+        }
+
       } else {
         reply
           .status(StatusCodes.UNAUTHORIZED)
           .send({
-            code: StatusCodes.UNAUTHORIZED,
-            error: getReasonPhrase(StatusCodes.UNAUTHORIZED)
+            status: 'error',
+            error: {
+              code: StatusCodes.UNAUTHORIZED,
+              message: getReasonPhrase(StatusCodes.UNAUTHORIZED)
+            }
+
           })
       }
 
@@ -51,8 +74,12 @@ export default async (fastify: FastifyInstance) => {
       reply
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .send({
-          code: StatusCodes.INTERNAL_SERVER_ERROR,
-          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+          status: 'error',
+          error: {
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            message: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+          }
+
         })
     }
   })
