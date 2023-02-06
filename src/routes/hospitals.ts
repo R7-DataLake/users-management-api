@@ -17,7 +17,7 @@ export default async (fastify: FastifyInstance) => {
   const hospitalModel = new HospitalModel()
   const db: Knex = fastify.db
 
-  fastify.get('/hospitals', {
+  fastify.get('/', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
@@ -42,7 +42,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.get('/hospitals/:hospcode/info', {
+  fastify.get('/:hospcode/info', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
@@ -67,7 +67,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.post('/hospitals', {
+  fastify.post('/', {
     onRequest: [fastify.authenticate],
     schema: createSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -100,7 +100,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.put('/hospitals/:hospcode/edit', {
+  fastify.put('/:hospcode/edit', {
     onRequest: [fastify.authenticate],
     schema: updateSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -131,7 +131,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.delete('/hospitals/:hospcode/mark-delete', {
+  fastify.delete('/:hospcode/mark-delete', {
     onRequest: [fastify.authenticate],
     schema: removeSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
