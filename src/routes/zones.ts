@@ -12,7 +12,7 @@ export default async (fastify: FastifyInstance) => {
   const zoneModel = new ZoneModel()
   const db: Knex = fastify.db
 
-  fastify.get('/zones', {
+  fastify.get('/', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 

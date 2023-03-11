@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes"
 
 export default async (fastify: FastifyInstance) => {
 
-  fastify.get('/health-check', {
+  fastify.get('/', {
     config: {
       rateLimit: {
         max: 3,

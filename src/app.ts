@@ -55,10 +55,10 @@ app.register(require('./plugins/db'), {
       password: process.env.R7PLATFORM_USM_DB_PASSWORD || '',
       database: process.env.R7PLATFORM_USM_DB_NAME || 'test',
     },
-    searchPath: [process.env.R7PLATFORM_USM_DB_SCHEMA || 'public'],
+    searchPath: [process.env.R7PLATFORM_USM_DB_SCHEMA || 'users'],
     pool: {
-      min: 10,
-      max: 500
+      min: process.env.R7PLATFORM_USM_DB_POOL_MIN ? Number(process.env.R7PLATFORM_USM_DB_POOL_MIN) : 0,
+      max: process.env.R7PLATFORM_USM_DB_POOL_MAX ? Number(process.env.R7PLATFORM_USM_DB_POOL_MAX) : 10
     },
     debug: process.env.R7PLATFORM_USM_DB_DEBUG === "Y" ? true : false,
   }
@@ -66,7 +66,7 @@ app.register(require('./plugins/db'), {
 
 // JWT
 app.register(require('./plugins/jwt'), {
-  secret: process.env.R7PLATFORM_USM_SECRET_KEY || '@1234567890@',
+  secret: process.env.R7PLATFORM_USM_SECRET_KEY || '',
   sign: {
     iss: 'r7.moph.go.th',
     expiresIn: '1d'
@@ -92,8 +92,11 @@ app.decorate('verifyPassword', async (password: any, hash: any) => {
 })
 
 // routes
-app.register(autoload, {
-  dir: path.join(__dirname, 'routes')
-})
+app.register(require("./routes/health_check"), { prefix: '/health-check' })
+app.register(require("./routes/hospitals"), { prefix: '/hospitals' })
+app.register(require("./routes/libs"), { prefix: '/libs' })
+app.register(require("./routes/login"), { prefix: '/login' })
+app.register(require("./routes/users"), { prefix: '/users' })
+app.register(require("./routes/zones"), { prefix: '/zones' })
 
 export default app;

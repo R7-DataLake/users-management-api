@@ -17,7 +17,7 @@ export default async (fastify: FastifyInstance) => {
   const userModel = new UserModel()
   const db: Knex = fastify.db
 
-  fastify.get('/users', {
+  fastify.get('/', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
@@ -41,7 +41,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.get('/users/:id/info', {
+  fastify.get('/:id/info', {
     onRequest: [fastify.authenticate],
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
@@ -65,7 +65,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.post('/users', {
+  fastify.post('/', {
     onRequest: [fastify.authenticate],
     schema: createUserSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -106,7 +106,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.put('/users/:id/edit', {
+  fastify.put('/:id/edit', {
     onRequest: [fastify.authenticate],
     schema: updateUserSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -142,7 +142,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.delete('/users/:id/mark-delete', {
+  fastify.delete('/:id/mark-delete', {
     onRequest: [fastify.authenticate],
     schema: removeSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -168,7 +168,7 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.put('/users/change-password', {
+  fastify.put('/change-password', {
     onRequest: [fastify.authenticate],
     schema: changePasswordSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
