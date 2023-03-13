@@ -60,7 +60,7 @@ app.register(require('./plugins/db'), {
       min: process.env.R7PLATFORM_USM_DB_POOL_MIN ? Number(process.env.R7PLATFORM_USM_DB_POOL_MIN) : 0,
       max: process.env.R7PLATFORM_USM_DB_POOL_MAX ? Number(process.env.R7PLATFORM_USM_DB_POOL_MAX) : 10
     },
-    debug: process.env.R7PLATFORM_USM_DB_DEBUG === "Y" ? true : false,
+    debug: process.env.NODE_ENV === "development" ? true : false,
   }
 })
 
