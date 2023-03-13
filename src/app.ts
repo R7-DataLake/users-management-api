@@ -98,5 +98,6 @@ app.register(require("./routes/libs"), { prefix: '/libs' })
 app.register(require("./routes/login"), { prefix: '/login' })
 app.register(require("./routes/users"), { prefix: '/users' })
 app.register(require("./routes/zones"), { prefix: '/zones' })
+app.register(require("./routes/report"), { prefix: '/reports' })
 
 export default app;

@@ -61,4 +61,10 @@ export class UserModel {
       .where('id', id)
   }
 
+  async cancelDelete(db: Knex, id: any) {
+    return db.from('users')
+      .update({ 'is_deleted': false })
+      .where('id', id)
+  }
+
 }

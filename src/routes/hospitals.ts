@@ -7,7 +7,7 @@ import { Knex } from "knex"
 
 import { HospitalModel } from '../models/hospital'
 
-import removeSchema from '../schema/user/remove'
+import removeSchema from '../schema/hospital/remove'
 import createSchema from '../schema/hospital/create'
 import updateSchema from '../schema/hospital/update'
 import { ICreateHospital, IUpdateHospital } from "../types/hospital"
