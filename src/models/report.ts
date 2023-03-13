@@ -34,11 +34,13 @@ export class ReportModel {
 
   async getHospitalLastSend(db: Knex) {
     const sql = `
-      select t.created_at as last_update, h.hospcode, h.hospname
+      select h.hospcode, h.hospname, max(t.created_at) as last_update
       from tokens t
       inner join users u on u.id=t.user_id 
       inner join hospitals h on h.hospcode=u.hospcode
-      order by t.created_at desc
+      where t.created_at > (current_date - interval '2 day')
+      group by h.hospcode
+      order by last_update desc
       limit 20;
     `;
 
@@ -47,7 +49,7 @@ export class ReportModel {
 
   async getHospitalLastNotSend(db: Knex) {
     const sql = `
-      select h.hospcode, h.hospname, (select max(t2.created_at) from tokens t2 where t2.hospcode=h.hospcode ) as last_update
+      select h.hospcode, h.hospname, max(t.created_at) as last_update
       from tokens t
       inner join users u on u.id=t.user_id 
       inner join hospitals h on h.hospcode=u.hospcode
