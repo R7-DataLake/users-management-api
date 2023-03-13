@@ -6,7 +6,7 @@ import {
 import { Knex } from "knex"
 
 import { UserModel } from '../models/user'
-import removeSchema from '../schema/user/remove'
+import activeSchema from '../schema/user/active'
 import createUserSchema from '../schema/user/create'
 import updateUserSchema from '../schema/user/update'
 import changePasswordSchema from '../schema/user/change_password'
@@ -142,9 +142,9 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  fastify.delete('/:id/mark-delete', {
+  fastify.put('/:id/delete', {
     onRequest: [fastify.authenticate],
-    schema: removeSchema,
+    schema: activeSchema,
   }, async (request: FastifyRequest, reply: FastifyReply) => {
 
     const params: any = request.params
@@ -152,6 +152,32 @@ export default async (fastify: FastifyInstance) => {
 
     try {
       await userModel.delete(db, id)
+
+      reply
+        .status(StatusCodes.OK)
+        .send(getReasonPhrase(StatusCodes.OK))
+
+    } catch (error: any) {
+      request.log.error(error)
+      reply
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send({
+          code: StatusCodes.INTERNAL_SERVER_ERROR,
+          error: getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR)
+        })
+    }
+  })
+
+  fastify.put('/:id/cancel-delete', {
+    onRequest: [fastify.authenticate],
+    schema: activeSchema,
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
+
+    const params: any = request.params
+    const id = params.id
+
+    try {
+      await userModel.cancelDelete(db, id)
 
       reply
         .status(StatusCodes.OK)
