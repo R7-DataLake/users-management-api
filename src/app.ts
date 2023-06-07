@@ -23,17 +23,22 @@ const app = fastify({
 
 // Plugins
 app.register(require('@fastify/formbody'))
-app.register(require('@fastify/cors'))
+app.register(require('@fastify/cors'), {
+  origin: ['http://localhost:4200', 'https://r7.moph.go.th'],
+  methods: ['GET', 'POST', 'DELETE', 'PUT'],
+})
 app.register(requestId());
 app.register(
   helmet,
-  { contentSecurityPolicy: false }
+  {
+    contentSecurityPolicy: false,
+  }
 )
 // Rate limit
 app.register(import('@fastify/rate-limit'), {
-  global: false,
-  max: 100,
-  timeWindow: '1 minute'
+  global: true,
+  max: 500,
+  timeWindow: '1h'
 })
 
 app.addHook('onSend', (request: any, reply: any, playload: any, next: any) => {
@@ -97,6 +102,7 @@ app.register(require("./routes/hospitals"), { prefix: '/hospitals' })
 app.register(require("./routes/libs"), { prefix: '/libs' })
 app.register(require("./routes/login"), { prefix: '/login' })
 app.register(require("./routes/users"), { prefix: '/users' })
+app.register(require("./routes/emr_users"), { prefix: '/emr-users' })
 app.register(require("./routes/zones"), { prefix: '/zones' })
 app.register(require("./routes/report"), { prefix: '/reports' })
 
