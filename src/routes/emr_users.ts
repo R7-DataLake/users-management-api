@@ -5,16 +5,16 @@ import {
 } from 'http-status-codes'
 import { Knex } from "knex"
 
-import { UserModel } from '../models/user'
+import { EMRUserModel } from '../models/emr_user'
 import activeSchema from '../schema/user/active'
-import createUserSchema from '../schema/user/create'
-import updateUserSchema from '../schema/user/update'
-import changePasswordSchema from '../schema/user/change_password'
-import { ICreateUser, IUpdateUser } from "../types/user"
+import createUserSchema from '../schema/emr_user/create'
+import updateUserSchema from '../schema/emr_user/update'
+import changePasswordSchema from '../schema/emr_user/change_password'
+import { ICreateEMRUser, IUpdateEMRUser } from "../types/emr_user"
 
 export default async (fastify: FastifyInstance) => {
 
-  const userModel = new UserModel()
+  const userModel = new EMRUserModel()
   const db: Knex = fastify.db
 
   fastify.get('/', {
@@ -72,15 +72,15 @@ export default async (fastify: FastifyInstance) => {
 
     const body: any = request.body
     const {
-      username, password,
+      cid, password,
       first_name, last_name,
       hospcode, enabled,
       email } = body
 
     try {
       const hash = await fastify.hashPassword(password)
-      let user: ICreateUser = {
-        username: username,
+      let user: ICreateEMRUser = {
+        cid: cid,
         password: hash,
         first_name,
         last_name,
@@ -117,7 +117,7 @@ export default async (fastify: FastifyInstance) => {
     const { first_name, last_name, hospcode, enabled, email } = body
 
     try {
-      let user: IUpdateUser = {
+      let user: IUpdateEMRUser = {
         first_name,
         last_name,
         hospcode,
